@@ -1,8 +1,8 @@
 {
   "files": {
     "main.css": "/prime-launch-admin-dapp/static/css/main.1ffa3ee9.chunk.css",
-    "main.js": "/prime-launch-admin-dapp/static/js/main.c99e354b.chunk.js",
-    "main.js.map": "/prime-launch-admin-dapp/static/js/main.c99e354b.chunk.js.map",
+    "main.js": "/prime-launch-admin-dapp/static/js/main.77dffcf4.chunk.js",
+    "main.js.map": "/prime-launch-admin-dapp/static/js/main.77dffcf4.chunk.js.map",
     "runtime-main.js": "/prime-launch-admin-dapp/static/js/runtime-main.21718126.js",
     "runtime-main.js.map": "/prime-launch-admin-dapp/static/js/runtime-main.21718126.js.map",
     "static/css/2.d45d6843.chunk.css": "/prime-launch-admin-dapp/static/css/2.d45d6843.chunk.css",
@@ -21,6 +21,6 @@
     "static/css/2.d45d6843.chunk.css",
     "static/js/2.3352fedb.chunk.js",
     "static/css/main.1ffa3ee9.chunk.css",
-    "static/js/main.c99e354b.chunk.js"
+    "static/js/main.77dffcf4.chunk.js"
   ]
 }
