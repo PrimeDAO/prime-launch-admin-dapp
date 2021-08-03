@@ -1,25 +1,25 @@
 {
   "files": {
-    "main.css": "/prime-launch-admin-dapp/static/css/main.1ffa3ee9.chunk.css",
-    "main.js": "/prime-launch-admin-dapp/static/js/main.30886b5b.chunk.js",
-    "main.js.map": "/prime-launch-admin-dapp/static/js/main.30886b5b.chunk.js.map",
-    "runtime-main.js": "/prime-launch-admin-dapp/static/js/runtime-main.1c324b74.js",
-    "runtime-main.js.map": "/prime-launch-admin-dapp/static/js/runtime-main.1c324b74.js.map",
-    "static/css/2.d45d6843.chunk.css": "/prime-launch-admin-dapp/static/css/2.d45d6843.chunk.css",
-    "static/js/2.661b102b.chunk.js": "/prime-launch-admin-dapp/static/js/2.661b102b.chunk.js",
-    "static/js/2.661b102b.chunk.js.map": "/prime-launch-admin-dapp/static/js/2.661b102b.chunk.js.map",
-    "static/js/3.dcb56d85.chunk.js": "/prime-launch-admin-dapp/static/js/3.dcb56d85.chunk.js",
-    "static/js/3.dcb56d85.chunk.js.map": "/prime-launch-admin-dapp/static/js/3.dcb56d85.chunk.js.map",
-    "index.html": "/prime-launch-admin-dapp/index.html",
-    "static/css/2.d45d6843.chunk.css.map": "/prime-launch-admin-dapp/static/css/2.d45d6843.chunk.css.map",
-    "static/css/main.1ffa3ee9.chunk.css.map": "/prime-launch-admin-dapp/static/css/main.1ffa3ee9.chunk.css.map",
-    "static/js/2.661b102b.chunk.js.LICENSE.txt": "/prime-launch-admin-dapp/static/js/2.661b102b.chunk.js.LICENSE.txt",
-    "static/media/PrimeLAUNCH.24365977.svg": "/prime-launch-admin-dapp/static/media/PrimeLAUNCH.24365977.svg"
+    "main.css": "/static/css/main.1ffa3ee9.chunk.css",
+    "main.js": "/static/js/main.30886b5b.chunk.js",
+    "main.js.map": "/static/js/main.30886b5b.chunk.js.map",
+    "runtime-main.js": "/static/js/runtime-main.9d0ca423.js",
+    "runtime-main.js.map": "/static/js/runtime-main.9d0ca423.js.map",
+    "static/css/2.d45d6843.chunk.css": "/static/css/2.d45d6843.chunk.css",
+    "static/js/2.a1190097.chunk.js": "/static/js/2.a1190097.chunk.js",
+    "static/js/2.a1190097.chunk.js.map": "/static/js/2.a1190097.chunk.js.map",
+    "static/js/3.dcb56d85.chunk.js": "/static/js/3.dcb56d85.chunk.js",
+    "static/js/3.dcb56d85.chunk.js.map": "/static/js/3.dcb56d85.chunk.js.map",
+    "index.html": "/index.html",
+    "static/css/2.d45d6843.chunk.css.map": "/static/css/2.d45d6843.chunk.css.map",
+    "static/css/main.1ffa3ee9.chunk.css.map": "/static/css/main.1ffa3ee9.chunk.css.map",
+    "static/js/2.a1190097.chunk.js.LICENSE.txt": "/static/js/2.a1190097.chunk.js.LICENSE.txt",
+    "static/media/PrimeLAUNCH.24365977.svg": "/static/media/PrimeLAUNCH.24365977.svg"
   },
   "entrypoints": [
-    "static/js/runtime-main.1c324b74.js",
+    "static/js/runtime-main.9d0ca423.js",
     "static/css/2.d45d6843.chunk.css",
-    "static/js/2.661b102b.chunk.js",
+    "static/js/2.a1190097.chunk.js",
     "static/css/main.1ffa3ee9.chunk.css",
     "static/js/main.30886b5b.chunk.js"
   ]
