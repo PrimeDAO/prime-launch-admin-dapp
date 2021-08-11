@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-export const fetchWhitelist = async (url) => {
+const fetchWhitelist = async (url) => {
     const res = await axios.get(url);
     const whitelists = (res.data).split(",");
     return whitelists.map((account) => {
