@@ -3,21 +3,26 @@ import ERC20 from './contracts/ERC20.json';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Button, Card } from 'react-bootstrap';
+import { parseWhiteList, parseName } from './helpers';
 
 const SeedCard = ({address, web3, network, account, gasPriceUrl}) => {
 
     const [isLoaded, setIsLoaded] = useState(false);
     const [seed, setSeed] = useState();
-    const [token, setToken] = useState();
-    const [tokenName, setTokenName] = useState();
+    const [seedToken, setSeedToken] = useState();
+    const [seedTokenName, setSeedTokenName] = useState();
+    const [seedTokenSymbol, setSeedTokenSymbol] = useState();
     const [fundingToken, setFundingToken] = useState();
     const [fundingTokenName, setFundingTokenName] = useState();
+    const [fundingTokenSymbol, setFundingTokenSymbol] = useState();
     const [requiredTokens, setRequiredTokens] = useState('0');
     const [isWhitelisted, setIsWhitelisted] = useState(false);
     const [isFunded, setIsFunded] = useState(false);
-    const [balance, setBalance] = useState();
+    const [seedBalance, setSeedBalance] = useState();
+    const [fundingBalance, setFundingBalance] = useState();
     const [metadata, setMetadata] = useState();
     const [admin, setAdmin] = useState();
+    const [refundReceiver, setRefundReceiver] = useState();
     const [name, setName] = useState();
     const [isPaused, setIsPaused] = useState(false);
     const [isClosed, setIsClosed] = useState(false);
@@ -25,9 +30,9 @@ const SeedCard = ({address, web3, network, account, gasPriceUrl}) => {
     useEffect(() => {
         const seed = new web3.eth.Contract(Seed.abi, address);
         const getToken = async () => {
-            const seedToken = await seed.methods.seedToken().call();
-            const token = new web3.eth.Contract(ERC20.abi, seedToken);
-            setToken(token);
+            const seedTokenAddress = await seed.methods.seedToken().call();
+            const token = new web3.eth.Contract(ERC20.abi, seedTokenAddress);
+            setSeedToken(token);
         };
         const getFundingToken = async () => {
             const fundingToken = await seed.methods.fundingToken().call();
@@ -42,21 +47,25 @@ const SeedCard = ({address, web3, network, account, gasPriceUrl}) => {
     useEffect(
         () => {
             if(
-                token != undefined && fundingToken != undefined
+                seedToken != undefined && fundingToken != undefined
             ) {
                 setIsLoaded(true);
             }
-        }, [token, fundingToken]
+        }, [seedToken, fundingToken]
     )
 
-    const getTokenName = async () => {
-        const tokenName = await token.methods.name().call();
-        setTokenName(tokenName);
+    const getSeedTokenName = async () => {
+        const name = await seedToken.methods.name().call();
+        const symbol = await seedToken.methods.symbol().call();
+        setSeedTokenName(name);
+        setSeedTokenSymbol(symbol);
     }
 
     const getFundingTokenName = async () => {
-        const fundingTokenName = await fundingToken.methods.name().call();
-        setFundingTokenName(fundingTokenName);
+        const name = await fundingToken.methods.name().call();
+        const symbol = await fundingToken.methods.symbol().call();
+        setFundingTokenName(name);
+        setFundingTokenSymbol(symbol);
     }
 
     const calculateRequiredSeed = async () => {
@@ -73,8 +82,10 @@ const SeedCard = ({address, web3, network, account, gasPriceUrl}) => {
         setIsFunded(isFunded);
     }
     const checkBalance = async () => {
-        const balance = await token.methods.balanceOf(address).call();
-        setBalance(balance);
+        const seedBalance = await seedToken.methods.balanceOf(address).call();
+        const fundingBalance = await fundingToken.methods.balanceOf(address).call();
+        setSeedBalance(seedBalance);
+        setFundingBalance(fundingBalance);
     }
 
     const getMetadata = async () => {
@@ -89,11 +100,11 @@ const SeedCard = ({address, web3, network, account, gasPriceUrl}) => {
 
     const fundSeed = async () => {
         try{
-            const gas = await token.methods.transfer(seed.options.address, requiredTokens).estimateGas({from: account});
+            const gas = await seedToken.methods.transfer(seed.options.address, requiredTokens).estimateGas({from: account});
             const gasPrice = await getGasPrice();
             const cost = (new web3.utils.BN(gasPrice)).mul(new web3.utils.BN(gas))
             alert(`Cost of transaction:- ${web3.utils.fromWei(cost)}`);
-            await token.methods.transfer(seed.options.address, requiredTokens).send({
+            await seedToken.methods.transfer(seed.options.address, requiredTokens).send({
                 from : account,
                 gas,
                 gasPrice
@@ -101,23 +112,6 @@ const SeedCard = ({address, web3, network, account, gasPriceUrl}) => {
         } catch (error) {
             alert(error.message);
         }
-    }
-
-    const fetchWhitelist = async (url) => {
-        const res = await axios.get(url);
-        const whitelists = (res.data).split(",");
-        return whitelists.map((account) => {
-            return account.replace(/\n/g, "");
-        });
-    };
-
-    const parseWhiteList = async () => {
-        const res = await axios.get(`https://ipfs.io/ipfs/${metadata}`);
-        return await fetchWhitelist(JSON.parse(res.data).seedDetails.whitelist);
-    }
-    const parseName = async () => {
-        const res = await axios.get(`https://ipfs.io/ipfs/${metadata}`);
-        return JSON.parse(res.data).general.projectName;
     }
 
     const getGasPrice = async () => {
@@ -129,7 +123,7 @@ const SeedCard = ({address, web3, network, account, gasPriceUrl}) => {
     }
 
     const addWhitelist = async () => {
-        const whitelists = await parseWhiteList();
+        const whitelists = await parseWhiteList(metadata);
         alert(`This address will be added as whitelist:- ${whitelists}`);
         try{
             const gas = await seed.methods.whitelistBatch(whitelists).estimateGas({from: account});
@@ -211,11 +205,52 @@ const SeedCard = ({address, web3, network, account, gasPriceUrl}) => {
         alert("Seed is already Closed");
     }
 
+    const formatPrice = (type, amount) => {
+        let symbol = type === 1 ? fundingTokenSymbol : seedTokenSymbol;
+        const balanceInEth = web3.utils.fromWei(new web3.utils.BN(amount));
+        return `${balanceInEth} ${symbol}`;
+    }
+
+    const retrieveSeedTokens = async () => {
+        if(refundReceiver?.length !== 42 || refundReceiver === undefined) {
+            alert("invalid address");
+            return;
+        }
+        try{
+            const gas = await seed.methods.retrieveSeedTokens(refundReceiver).estimateGas({from: account});
+            const gasPrice = await getGasPrice();
+            const cost = (new web3.utils.BN(gasPrice)).mul(new web3.utils.BN(gas))
+            alert(`Cost of transaction:- ${web3.utils.fromWei(cost)}`);
+            await seed.methods.retrieveSeedTokens(refundReceiver).send({
+                from : account,
+                gas,
+                gasPrice
+            });
+        } catch (error) {
+            alert(error.message);
+        }
+    };
+
+    const withdraw = async () => {
+        try{
+            const gas = await seed.methods.withdraw().estimateGas({from: account});
+            const gasPrice = await getGasPrice();
+            const cost = (new web3.utils.BN(gasPrice)).mul(new web3.utils.BN(gas))
+            alert(`Cost of transaction:- ${web3.utils.fromWei(cost)}`);
+            await seed.methods.withdraw().send({
+                from : account,
+                gas,
+                gasPrice
+            });
+        } catch (error) {
+            alert(error.message);
+        }
+    }
 
     useEffect(
         () => {
             if(isLoaded){
-                getTokenName();
+                getSeedTokenName();
                 getFundingTokenName();
                 getAdmin();
                 calculateRequiredSeed();
@@ -232,11 +267,15 @@ const SeedCard = ({address, web3, network, account, gasPriceUrl}) => {
         () => {
             if(metadata){
                 (async () => {
-                    setName(await parseName());
+                    setName(await parseName(metadata));
                 })();
             }
         }, [metadata]
     );
+
+    const handleRefundReceiverInput = ({target}) => {
+        setRefundReceiver(target.value);
+    }
 
     return (
         isLoaded?(
@@ -262,16 +301,24 @@ const SeedCard = ({address, web3, network, account, gasPriceUrl}) => {
                     </Card.Subtitle>
                     <Card.Text>
                         Admin:- {admin}<br />
-                        Seed Token Address:- {token.options.address}<br/>
-                        Seed Token Name:- {tokenName}<br />
+                        Seed Token Address:- {seedToken.options.address}<br/>
+                        Seed Token Name:- {seedTokenName}<br />
                         Funding Token Address:- {fundingToken.options.address}<br/>
                         Funding Token Name:- {fundingTokenName}<br />
-                        Required Seed Tokens:- {requiredTokens}<br/>
-                        Balance:- {balance}<br/>
+                        Required Seed Tokens:- {formatPrice(0, requiredTokens)}<br/>
+                        Seed Token Balance:- {formatPrice(0, seedBalance)}<br/>
+                        Funding Token Balance:- {formatPrice(1, fundingBalance)}<br/>
                         isFunded:- {isFunded.toString()}<br/>
                         isWhitelisted:- {isWhitelisted.toString()}<br/>
                         isClosed:- {isClosed.toString()}<br/>
                         isPaused:- {isPaused.toString()}<br/>
+                    </Card.Text>
+                    <Card.Text>
+                        <div class="mb-3">
+                          <label for="retrieveSeedToken" class="form-label">Refund receiver address for retrieving seed tokens</label>
+                          <input type="text" onChange={handleRefundReceiverInput} class="form-control" id="retrieveSeedToken" placeholder="0x123456789......" />
+                          <Button bsPrefix={"prime-btn btn"} type={'button'} onClick={retrieveSeedTokens}>Retrieve Seed Tokens</Button>
+                        </div>
                     </Card.Text>
                 </div>
                 <div className={"seed-action-wrapper"}>
@@ -295,60 +342,19 @@ const SeedCard = ({address, web3, network, account, gasPriceUrl}) => {
                                         null
                                 }
                                 {
-                                    (!isFunded && balance === '0')?
+                                    (!isFunded && seedBalance === '0')?
                                         <Button bsPrefix={"prime-btn btn"} type={'button'} onClick={fundSeed}>Fund</Button>
                                         :
                                         null
+                                }
+                                {
+                                        <Button bsPrefix={"prime-btn btn"} type={'button'} onClick={withdraw}>Withdraw</Button>
                                 }
                             </>)
                         }
                 </div>
               </Card.Body>
             </Card>
-            // <div className={"seed-card"}>
-            //     <h4>Project Name:- </h4>
-            //     <p>
-            //         Seed:- {seed.options.address}<br />
-            //         Admin:- {admin}<br />
-            //         Seed Token Address:- {token.options.address}<br/>
-            //         Seed Token Name:- {tokenName}<br />
-            //         Funding Token Address:- {fundingToken.options.address}<br/>
-            //         Funding Token Name:- {fundingTokenName}<br />
-            //         Required Seed Tokens:- {requiredTokens}<br/>
-            //         Balance:- {balance}<br/>
-            //         isFunded:- {isFunded.toString()}<br/>
-            //         isWhitelisted:- {isWhitelisted.toString()}<br/>
-            //         isClosed:- {isClosed.toString()}<br/>
-            //         isPaused:- {isPaused.toString()}<br/>
-            //     </p>
-            //     <button type={'button'} onClick={getSeedStatus}>Refresh Seed Status</button>
-            //     {
-            //         isClosed?
-            //             null
-            //             :
-            //             (<>
-            //                 <button type={'button'} onClick={close}>Close Seed</button>
-            //                 {
-            //                     isPaused?
-            //                         <button type={'button'} onClick={unpause}>Unpause Seed</button>
-            //                         :
-            //                         <button type={'button'} onClick={pause}>Pause Seed</button>
-            //                 }
-            //                 {
-            //                     isWhitelisted?
-            //                         <button type={'button'} onClick={addWhitelist}>Add Whitelist</button>
-            //                         :
-            //                         null
-            //                 }
-            //                 {
-            //                     (!isFunded && balance === '0')?
-            //                         <button type={'button'} onClick={fundSeed}>Fund Seed</button>
-            //                         :
-            //                         null
-            //                 }
-            //             </>)
-            //         }
-            // </div>
             )
             :
             <div>Loading...</div>
