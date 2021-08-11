@@ -82,8 +82,9 @@ class App extends Component {
 	// Get all the past 'SeedCreated' events, filter the seed address and return array of seedAddress
 	getDeployedSeedAddress = async () => {
 		const allEvents = await this.seedFactory.getPastEvents('SeedCreated',{
+			filter: this.state.factory === "0x2330aCb221709574Ccb2dA3A21a1D92E8EAb590d" ? {} : {admin: this.state.currentAccount},
 			fromBlock: 0,
-			toBlock: 'latest'
+			toBlock: 'latest',
 		});
 		return allEvents.map(
 			event => event.returnValues.newSeed
